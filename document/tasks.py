@@ -14,3 +14,18 @@ def send_admin_notification(subject, message):
         )
     except Exception as e:
         print(f'Ошибка при отправке уведомления: {e}')
+
+
+@shared_task
+def send_user_notification(user_email, document_status, document_title):
+    subject = 'Статус вашего документа обновлен'
+    message = f'Ваш документ "{document_title}" был {document_status}.'
+    try:
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user_email]
+        )
+    except Exception as e:
+        print(f'Ошибка при отправке уведомления: {e}')
