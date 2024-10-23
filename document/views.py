@@ -1,8 +1,14 @@
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from .models import Document
 from .serializer import DocumentSerializer
 from rest_framework.permissions import IsAuthenticated
 
+
+class DocumentViewSet(viewsets.ModelViewSet):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+    permission_classes = [IsAuthenticated]
+    
 
 class DocumentListCreateView(generics.ListCreateAPIView):
     """
