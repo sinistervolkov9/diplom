@@ -6,9 +6,9 @@ from .validators import FileSizeValidator, FileExtensionValidator
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
-        fields = ['id', 'title', 'created_at', 'updated_at']
+        fields = ['file', 'title', 'user']
 
-    def validate(self, value):
+    def validate_file(self, value):
         # Проверяет размер файла в MB
         FileSizeValidator()(value)
 
@@ -16,3 +16,6 @@ class DocumentSerializer(serializers.ModelSerializer):
         FileExtensionValidator()(value)
 
         return value
+
+    def validate(self, attrs):
+        return attrs

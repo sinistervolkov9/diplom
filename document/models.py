@@ -11,6 +11,10 @@ STATUS = [
 
 
 class Document(models.Model):
+    file = models.FileField(
+        upload_to='documents/',
+        **NULLABLE
+    )
     title = models.CharField(
         max_length=255,
         default='Документ',
