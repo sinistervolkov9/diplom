@@ -4,9 +4,9 @@ from django.conf import settings
 
 NULLABLE = {'blank': True, 'null': True}
 STATUS = [
-    ('pending', 'Pending'),
-    ('approved', 'Approved'),
-    ('rejected', 'Rejected'),
+    ('pending', 'Ожидаемый'),
+    ('approved', 'Одобренный'),
+    ('rejected', 'Отклоненный'),
 ]
 
 
