@@ -6,8 +6,8 @@ from .validators import FileSizeValidator, FileExtensionValidator
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
-        fields = ['id', 'file', 'title', 'status', 'created_at']
-        read_only_fields = ['status', 'created_at']
+        fields = ['id', 'user', 'file', 'title', 'status', 'created_at']
+        read_only_fields = ['id', 'user', 'file', 'created_at']
 
     def validate_file(self, value):
         # Проверяет размер файла в MB
