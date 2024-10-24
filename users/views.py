@@ -1,16 +1,18 @@
 from django.core.mail import send_mail
 from django.conf import settings
-from .serializer import RegistrationSerializer
+from .serializer import RegistrationSerializer, VerifyCodeSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import User
 from rest_framework.permissions import AllowAny
+from drf_yasg.utils import swagger_auto_schema
 
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(request_body=RegistrationSerializer)
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
@@ -26,11 +28,14 @@ class RegisterView(APIView):
             )
             return Response(
                 {'message': 'Пользователь зарегистрирован, проверьте свою почту для получения кода подтверждения.'},
-                status=status.HTTP_201_CREATED)
+                status=status.HTTP_201_CREATED
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyCodeView(APIView):
+
+    @swagger_auto_schema(request_body=VerifyCodeSerializer)
     def post(self, request):
         code = request.data.get('code')
         try:

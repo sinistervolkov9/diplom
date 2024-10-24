@@ -1,12 +1,11 @@
 import os
-from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# ADMINS = [('Admin', os.getenv('ADMIN_EMAIL')), ]  # email администратора (того, кто рассматривает документы)
-ADMINS = [('Admin', 'sgse.vlad@gmail.com'), ]  # email администратора (того, кто рассматривает документы)
+# email администраторов (тех, кто рассматривает документы и может работать с ними). Дополните, если требуется.
+ADMINS = [('csuAdmin', 'admin@admin.ru'), ('Admin', os.getenv('ADMIN_EMAIL')), ]
 # (Пример: ('Admin', 'admin_email@example.com'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
