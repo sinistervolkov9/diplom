@@ -5,6 +5,9 @@ User = get_user_model()
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для регистрации нового пользователя
+    """
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -12,6 +15,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'password']
 
     def create(self, validated_data):
+        """
+        Создаем неактивного пользователя до верификации
+        """
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -22,4 +28,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class VerifyCodeSerializer(serializers.Serializer):
-    code = serializers.IntegerField()
+    """
+    Сериализатор для верификации кода пользователя
+    """
+    code = serializers.IntegerField(help_text='Код, отправленный на почту для подтверждения')

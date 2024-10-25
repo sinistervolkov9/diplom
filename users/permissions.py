@@ -5,7 +5,7 @@ from django.conf import settings
 class IsAdminOrReadOnly(permissions.BasePermission):
     """
     Разрешение, которое позволяет изменять/удалять документы только администраторам из settings.ADMINS.
-    Обычные пользователи могут только просматривать свои документы или одобренные администрацией.
+    Обычные пользователи могут только просматривать свои документы или одобренные администрацией
     """
 
     def has_permission(self, request, view):

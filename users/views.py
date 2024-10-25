@@ -10,12 +10,16 @@ from drf_yasg.utils import swagger_auto_schema
 
 
 class RegisterView(APIView):
+    """
+    View для регистрации нового пользователя и отправки кода верификации на почту
+    """
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(request_body=RegistrationSerializer)
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
+
             user = serializer.save()
             user.generate_verification_code()
 
@@ -34,6 +38,9 @@ class RegisterView(APIView):
 
 
 class VerifyCodeView(APIView):
+    """
+    View для подтверждения кода верификации и активации пользователя
+    """
 
     @swagger_auto_schema(request_body=VerifyCodeSerializer)
     def post(self, request):

@@ -6,6 +6,9 @@ from .tasks import send_admin_notification
 
 @receiver(post_save, sender=Document)
 def notify_admin_on_document_submission(sender, instance, created, **kwargs):
+    """
+    Уведомление администраторов при загрузке нового документа
+    """
     if created:
         send_admin_notification.delay(
             subject='Новый документ на рассмотрение',

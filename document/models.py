@@ -1,9 +1,10 @@
 from django.db import models
-from users.models import User
 from django.conf import settings
 
 NULLABLE = {'blank': True, 'null': True}
-STATUS = [
+
+# Константы-статусы
+STATUS_CHOICES = [
     ('pending', 'Ожидаемый'),
     ('approved', 'Одобренный'),
     ('rejected', 'Отклоненный'),
@@ -13,7 +14,8 @@ STATUS = [
 class Document(models.Model):
     file = models.FileField(
         upload_to='documents/',
-        **NULLABLE
+        **NULLABLE,
+        verbose_name='Файл'
     )
     title = models.CharField(
         max_length=255,
@@ -22,7 +24,6 @@ class Document(models.Model):
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        default=1,
         on_delete=models.CASCADE,
         verbose_name='Пользователь'
     )
@@ -37,7 +38,7 @@ class Document(models.Model):
     status = models.CharField(
         max_length=20,
         default='pending',
-        choices=STATUS,
+        choices=STATUS_CHOICES,
         verbose_name='Статус'
     )
 
@@ -58,13 +59,15 @@ class Notification(models.Model):
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        default=1,
         on_delete=models.CASCADE,
         verbose_name='Пользователь'
     )
-    message = models.TextField()
+    message = models.TextField(
+        verbose_name='Сообщение'
+    )
     created_at = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
+        verbose_name='Дата создания'
     )
 
     class Meta:

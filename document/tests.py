@@ -8,7 +8,9 @@ from document.models import Document
 class DocumentPermissionsTest(APITestCase):
 
     def setUp(self):
-        """Создание тестовых данных"""
+        """
+        Создание тестовых данных
+        """
         # Обычный пользователь
         self.User = get_user_model()
         self.user = self.User.objects.create_user(
@@ -37,7 +39,9 @@ class DocumentPermissionsTest(APITestCase):
         self.document_delete_url = reverse('document:document-delete', kwargs={'pk': self.document.id})
 
     def test_user_cannot_change_or_delete_document(self):
-        """Обычные пользователи не могут изменять или удалять документы"""
+        """
+        Обычные пользователи не могут изменять или удалять документы
+        """
         self.client.force_authenticate(user=self.user)
 
         # Попытка изменения документа
@@ -49,7 +53,9 @@ class DocumentPermissionsTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_admin_can_change_or_delete_document(self):
-        """Админы могут изменять и удалять документы"""
+        """
+        Админы могут изменять и удалять документы
+        """
         self.client.force_authenticate(user=self.admin_user)
 
         # Попытка изменения документа
@@ -65,7 +71,9 @@ class DocumentPermissionsTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_user_can_only_see_own_and_approved_documents(self):
-        """Обычные пользователи можгут видеть только свои документы и одобренные"""
+        """
+        Обычные пользователи можгут видеть только свои документы и одобренные
+        """
         self.client.force_authenticate(user=self.user)
 
         # Попытка получить список документов
@@ -79,7 +87,9 @@ class DocumentPermissionsTest(APITestCase):
                              doc['id'] != self.document.id))  # Не видит отклонённые чужие
 
     def test_admin_can_see_all_documents(self):
-        """Админы могут видеть все документы"""
+        """
+        Админы могут видеть все документы
+        """
         self.client.force_authenticate(user=self.admin_user)
 
         # Получаем список документов
@@ -91,14 +101,18 @@ class DocumentPermissionsTest(APITestCase):
         self.assertTrue(any(doc['id'] == self.document.id for doc in documents))
 
     def test_unauthorized_user_cannot_see_documents(self):
-        """Неавторизованные пользователи не могут видеть список документов"""
+        """
+        Неавторизованные пользователи не могут видеть список документов
+        """
         # Попробуем получить список документов без авторизации
         response = self.client.get(reverse('document:document-list'))
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_unauthorized_user_cannot_see_document_detail(self):
-        """Неавторизованный пользователь не может видеть отдельный документ"""
+        """
+        Неавторизованный пользователь не может видеть отдельный документ
+        """
         # Документ
         document = Document.objects.create(
             title="Test Document",

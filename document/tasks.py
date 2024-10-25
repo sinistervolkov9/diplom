@@ -5,6 +5,9 @@ from django.conf import settings
 
 @shared_task
 def send_admin_notification(subject, message):
+    """
+    Задача для отправки уведомления администратору
+    """
     try:
         send_mail(
             subject=subject,
@@ -18,6 +21,9 @@ def send_admin_notification(subject, message):
 
 @shared_task
 def send_user_notification(user_email, document_status, document_title):
+    """
+    Задача для отправки уведомления пользователю о статусе документа
+    """
     subject = 'Статус вашего документа обновлен'
     message = f'Ваш документ "{document_title}" был {document_status}.'
     try:
