@@ -6,10 +6,9 @@ from rest_framework.exceptions import NotAuthenticated
 from users.permissions import IsAdminOrReadOnly
 
 
-class DocumentViewSet(viewsets.ReadOnlyModelViewSet):
+class DocumentViewSet(viewsets.ModelViewSet):  # Изменено на ModelViewSet
     """
-    ViewSet для просмотра списка документов и получения информации о документе.
-    Создание нового документа также остается в этом ViewSet
+    ViewSet для просмотра списка документов, получения информации о документе и создания нового документа.
     """
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
@@ -26,14 +25,14 @@ class DocumentViewSet(viewsets.ReadOnlyModelViewSet):
 
     def perform_create(self, serializer):
         """
-        Создаем новый документ и привязываем его к текущему пользователю
+        Создаем новый документ и привязываем его к текущему пользователю.
         """
         serializer.save(user=self.request.user)
 
 
 class DocumentUpdateView(generics.UpdateAPIView):
     """
-    Представление для изменения документа (PUT и PATCH запросы)
+    Представление для изменения документа (PUT и PATCH запросы).
     """
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
@@ -41,7 +40,7 @@ class DocumentUpdateView(generics.UpdateAPIView):
 
     def perform_update(self, serializer):
         """
-        После обновления отправляем уведомление пользователю
+        После обновления отправляем уведомление пользователю.
         """
         instance = serializer.save()
         if 'status' in serializer.validated_data:
@@ -54,7 +53,7 @@ class DocumentUpdateView(generics.UpdateAPIView):
 
 class DocumentDeleteView(generics.DestroyAPIView):
     """
-    Представление для удаления документа
+    Представление для удаления документа.
     """
     queryset = Document.objects.all()
     permission_classes = [IsAdminOrReadOnly]
