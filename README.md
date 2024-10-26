@@ -37,7 +37,7 @@ docker-compose exec web python manage.py csu
 
 ### 6. Доступ к приложению
 
-- Админка Django будет доступна по адресу: [http://localhost:8000/admin](http://localhost:8000/admin).
+Админка Django будет доступна по адресу: [http://localhost:8000/admin](http://localhost:8000/admin).
 
 ### 7. Остановка
 
@@ -84,3 +84,14 @@ docker-compose down
 перейдя по следующему URL:
 
 Swagger UI: http://localhost:8000/swagger/
+
+## Тестирование 
+
+Проект покрыт тестами, что позволяет удостовериться в корректной работе функционала. 
+Уровень покрытия тестами составляет 86%.
+
+Чтобы запустить тесты, выполните следующую команду: 
+docker-compose exec web python manage.py test
+
+Эта команда выполнит все тесты проекта, 
+и вы увидите отчет о результатах и покрытии тестами.
