@@ -8,8 +8,9 @@ def approve_document(modeladmin, request, queryset):
     """
     Действия для одобрения документов в админ-панели
     """
-    queryset.update(status='approved')
     for document in queryset:
+        document.status = 'approved'
+        document.save()
         send_user_notification.delay(document.user.email, 'подтвержден', document.title)
 
 
@@ -18,8 +19,9 @@ def reject_document(modeladmin, request, queryset):
     """
     Действия для отклонения документов в админ-панели
     """
-    queryset.update(status='rejected')
     for document in queryset:
+        document.status = 'rejected'
+        document.save()
         send_user_notification.delay(document.user.email, 'отклонен', document.title)
 
 
@@ -30,3 +32,15 @@ class DocumentAdmin(admin.ModelAdmin):
     """
     list_display = ['title', 'user', 'status', 'created_at']
     actions = [approve_document, reject_document]
+
+    def save_model(self, request, obj, form, change):
+        """
+        Метод, который вызывается при сохранении модели.
+        Отправляем уведомление пользователю, если статус документа изменен.
+        """
+        if change:
+            old_status = Document.objects.get(pk=obj.pk).status
+            if old_status != obj.status:
+                send_user_notification.delay(obj.user.email, obj.status, obj.title)
+
+        super().save_model(request, obj, form, change)

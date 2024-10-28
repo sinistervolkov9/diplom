@@ -9,7 +9,7 @@ class Command(BaseCommand):
             email='user@user.ru',
             first_name='User',
             last_name='User',
-            is_staff=True,
+            is_staff=False,
             is_active=True,
             is_superuser=False,
             # password='user'

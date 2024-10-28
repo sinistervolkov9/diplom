@@ -14,7 +14,6 @@ STATUS_CHOICES = [
 class Document(models.Model):
     file = models.FileField(
         upload_to='documents/',
-        **NULLABLE,
         verbose_name='Файл'
     )
     title = models.CharField(

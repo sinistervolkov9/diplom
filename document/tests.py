@@ -26,17 +26,36 @@ class DocumentPermissionsTest(APITestCase):
             password='adminpassword'
         )
 
-        # Документ
-        self.document = Document.objects.create(
+        # Документы
+        # Документ обычного пользователя в ожидании
+        self.user_document = Document.objects.create(
             user=self.user,
-            file='documents/sample_doc_psOXPhD.docx',
+            file='documents/user_doc.docx',
             title='Документ Юзера',
+            status='pending'
+        )
+
+        # Документ админа отклоненный
+        self.admin_document = Document.objects.create(
+            user=self.admin_user,
+            file='documents/admin_doc.docx',
+            title='Документ Админа',
             status='rejected'
         )
 
-        # URL для изменения и удаления документа
-        self.document_change_url = reverse('document:document-change', kwargs={'pk': self.document.id})
-        self.document_delete_url = reverse('document:document-delete', kwargs={'pk': self.document.id})
+         # Документы обычного пользователя одобренный
+        self.approved_document = Document.objects.create(
+            user=self.user,
+            file='documents/approved_doc.docx',
+            title='Одобренный Документ',
+            status='approved'
+        )
+
+        # URL для детального представления документа
+        self.document_detail_url = reverse(
+            'document:document-detail',
+            kwargs={'pk': self.user_document.id}
+        )
 
     def test_user_cannot_change_or_delete_document(self):
         """
@@ -45,50 +64,53 @@ class DocumentPermissionsTest(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         # Попытка изменения документа
-        response = self.client.patch(self.document_change_url, {'title': 'New Title'})
+        response = self.client.patch(self.document_detail_url, {'title': 'New Title'})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Попытка удаления документа
-        response = self.client.delete(self.document_delete_url)
+        response = self.client.delete(self.document_detail_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_admin_can_change_or_delete_document(self):
         """
-        Админы могут изменять и удалять документы
+        Админы могут изменять и удалять документы.
         """
         self.client.force_authenticate(user=self.admin_user)
 
         # Попытка изменения документа
-        response = self.client.patch(self.document_change_url, {'title': 'Updated Title'})
+        response = self.client.patch(self.document_detail_url, {'title': 'Updated Title'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Проверим, что заголовок изменился
-        self.document.refresh_from_db()
-        self.assertEqual(self.document.title, 'Updated Title')
+        # Перезагружаем документ и проверяем, что заголовок изменился
+        self.user_document.refresh_from_db()  # Перезагрузка объекта
+        self.assertEqual(self.user_document.title, 'Документ обновленный')
 
         # Попытка удаления документа
-        response = self.client.delete(self.document_delete_url)
+        response = self.client.delete(self.document_detail_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_user_can_only_see_own_and_approved_documents(self):
         """
-        Обычные пользователи можгут видеть только свои документы и одобренные
+        Обычные пользователи могут видеть только свои документы и одобренные.
         """
         self.client.force_authenticate(user=self.user)
 
-        # Попытка получить список документов
+        # Получаем список документов
         response = self.client.get(reverse('document:document-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Проверка видимых документов
         documents = response.json()
-        self.assertTrue(any(doc['id'] == self.document.id for doc in documents))  # Видит свои документы
-        self.assertFalse(any(doc['status'] == 'rejected' for doc in documents if
-                             doc['id'] != self.document.id))  # Не видит отклонённые чужие
+        document_ids = [doc['id'] for doc in documents]
+
+        # Пользователь видит только свои одобренные документы
+        self.assertIn(self.approved_document.id, document_ids)  # Видит свой одобренный документ
+        self.assertNotIn(self.admin_document.id, document_ids)  # Не видит документ с другим статусом
+        self.assertNotIn(self.user_document.id, document_ids)  # Не видит документ с другим статусом
 
     def test_admin_can_see_all_documents(self):
         """
-        Админы могут видеть все документы
+        Админы могут видеть все документы, включая pending и rejected
         """
         self.client.force_authenticate(user=self.admin_user)
 
@@ -96,15 +118,20 @@ class DocumentPermissionsTest(APITestCase):
         response = self.client.get(reverse('document:document-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Админ видит все документы
+        # Проверка видимых документов
         documents = response.json()
-        self.assertTrue(any(doc['id'] == self.document.id for doc in documents))
+        document_ids = [doc['id'] for doc in documents]
+
+        # Админ видит все документы
+        self.assertIn(self.user_document.id, document_ids)
+        self.assertIn(self.admin_document.id, document_ids)
+        self.assertIn(self.approved_document.id, document_ids)
 
     def test_unauthorized_user_cannot_see_documents(self):
         """
         Неавторизованные пользователи не могут видеть список документов
         """
-        # Попробуем получить список документов без авторизации
+        # Получить список документов без авторизации
         response = self.client.get(reverse('document:document-list'))
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -113,13 +140,18 @@ class DocumentPermissionsTest(APITestCase):
         """
         Неавторизованный пользователь не может видеть отдельный документ
         """
-        # Документ
-        document = Document.objects.create(
-            title="Test Document",
-            file="test.pdf",
-            status="approved",
-            user=self.user
-        )
+        # Получить документ по id без авторизации
+        response = self.client.get(reverse('document:document-detail', kwargs={'pk': self.approved_document.id}))
 
-        response = self.client.get(reverse('document:document-detail', kwargs={'pk': document.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_admin_can_see_detailed_document_with_any_status(self):
+        """
+        Админ может видеть детальную информацию любого документа
+        """
+        self.client.force_authenticate(user=self.admin_user)
+
+        # Проверка доступа к каждому документу
+        for document in [self.user_document, self.admin_document, self.approved_document]:
+            response = self.client.get(reverse('document:document-detail', kwargs={'pk': document.id}))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)

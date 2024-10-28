@@ -13,7 +13,7 @@ ADMINS = [
 ]
 
 # Указать максимальный допустимый размер отправляемого файла в MB (для валидации)
-FILE_SIZE_MB = os.getenv('FILE_SIZE_MB')
+FILE_SIZE_MB = int(os.getenv('FILE_SIZE_MB'))
 
 # Базовая директория проекта
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
